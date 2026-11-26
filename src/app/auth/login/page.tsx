@@ -18,7 +18,8 @@ function LoginFormContent() {
   const errorParam = searchParams.get('error');
   const tabParam = searchParams.get('tab');
 
-  const { signInWithGoogle } = useAuth();
+  const auth = useAuth();
+  const signInWithGoogle = auth?.signInWithGoogle;
   const supabase = createClient();
 
   // Tab state: 'customer' (Google only) vs 'admin' (Email + Password)
@@ -61,7 +62,9 @@ function LoginFormContent() {
       // 2. Trigger Supabase OAuth if real credentials exist
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       if (supabaseUrl && !supabaseUrl.includes('placeholder.supabase.co')) {
-        await signInWithGoogle();
+        if (signInWithGoogle) {
+          await signInWithGoogle();
+        }
         return;
       }
 

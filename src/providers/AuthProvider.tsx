@@ -77,7 +77,7 @@ export function AuthProvider({
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();

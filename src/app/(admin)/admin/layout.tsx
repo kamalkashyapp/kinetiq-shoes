@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     if (!hasAdminSession) {
       setIsAuthorized(false);
-      router.replace('/auth/login?redirect=' + encodeURIComponent(pathname) + '&message=admin_restricted');
+      router.replace('/auth/login?redirect=' + encodeURIComponent(pathname) + '&tab=admin&message=admin_restricted');
     } else {
       setIsAuthorized(true);
     }
