@@ -42,6 +42,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [timeString, setTimeString] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  // Strict Authentication Gate: /admin requires active verified session
+  useEffect(() => {
+    const hasAdminSession = document.cookie
+      .split('; ')
+      .some((row) => row.startsWith('kinetiq-admin-session=operator'));
+
+    if (!hasAdminSession) {
+      setIsAuthorized(false);
+      router.replace('/auth/login?redirect=' + encodeURIComponent(pathname) + '&message=admin_restricted');
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [pathname, router]);
 
   // Night studio dark mode toggle
   useEffect(() => {
@@ -74,6 +89,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     document.cookie = 'kinetiq-admin-session=; path=/; max-age=0';
     router.push('/auth/login');
   };
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-bone flex flex-col items-center justify-center p-6 space-y-4">
+        <div className="w-8 h-8 border-2 border-line border-t-ink rounded-full animate-spin" />
+        <span className="micro-label text-smoke text-xs tracking-widest font-mono">
+          AUTHENTICATING OPERATOR ACCESS...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen flex ${isDarkMode ? 'dark bg-ink text-paper' : 'bg-bone/40 text-ink'}`}>
