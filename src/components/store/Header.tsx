@@ -14,9 +14,7 @@ export function Header() {
   const [collectionsHovered, setCollectionsHovered] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  if (pathname?.startsWith('/admin')) return null;
-
-  // Global ⌘K / Ctrl+K shortcut listener
+  // Global ⌘K / Ctrl+K shortcut listener (Must be before any early return)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -29,6 +27,9 @@ export function Header() {
   }, []);
 
   const count = itemCount();
+
+  // Hide storefront header on admin desk
+  if (pathname?.startsWith('/admin')) return null;
 
   const collections = [
     {
