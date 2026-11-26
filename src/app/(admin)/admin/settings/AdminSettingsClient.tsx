@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Settings, ShieldCheck, Truck, Percent, CreditCard, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings, ShieldCheck, Truck, Percent, CreditCard, Save, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/providers/ToastProvider';
 
 export function AdminSettingsClient() {
   const { toast } = useToast();
+  const [siteOrigin, setSiteOrigin] = useState('https://kinetiq-shoes.vercel.app');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSiteOrigin(window.location.origin);
+    }
+  }, []);
 
   const [settings, setSettings] = useState({
     freeShippingThreshold: 10000,
@@ -20,6 +28,21 @@ export function AdminSettingsClient() {
     supportEmail: 'concierge@kinetiq.design',
     storeCurrency: 'INR (₹)',
   });
+
+  const webhookUrl = `${siteOrigin}/api/webhooks/cashfree`;
+
+  const handleCopyWebhook = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(webhookUrl);
+      setCopied(true);
+      toast({
+        title: 'WEBHOOK URL COPIED',
+        description: 'Pasted URL ready for Cashfree Merchant Dashboard configuration.',
+        type: 'success',
+      });
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,13 +165,38 @@ export function AdminSettingsClient() {
               </div>
             </div>
 
-            <div className="p-3 bg-bone border border-line space-y-1">
-              <span className="micro-label text-smoke block">AUTHORITATIVE WEBHOOK LISTENER</span>
-              <code className="text-xs text-ink font-bold block break-all">
-                http://localhost:3000/api/webhooks/cashfree
-              </code>
-              <p className="text-[10px] text-smoke mt-1">
-                Secured via HMAC-SHA256 signature verification & idempotent database recording.
+            <div className="p-4 bg-bone border border-line space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="micro-label text-smoke block font-mono font-bold">
+                  AUTHORITATIVE CASHFREE WEBHOOK LISTENER
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyWebhook}
+                  className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono uppercase bg-paper border border-line hover:border-ink hover:text-ink transition-all shadow-xs"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-bold">COPIED TO CLIPBOARD</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-smoke" />
+                      <span>COPY WEBHOOK URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="p-2.5 bg-paper border border-line rounded-none overflow-x-auto">
+                <code className="text-xs text-ink font-bold block break-all font-mono">
+                  {webhookUrl}
+                </code>
+              </div>
+
+              <p className="text-[11px] text-smoke font-mono leading-relaxed">
+                Add this endpoint into your <strong className="text-ink">Cashfree Merchant Dashboard</strong> &gt; <strong className="text-ink">Developers</strong> &gt; <strong className="text-ink">Webhooks</strong>. Secured via HMAC-SHA256 signature verification & idempotent database recording.
               </p>
             </div>
           </div>
