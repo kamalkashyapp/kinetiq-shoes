@@ -14,8 +14,6 @@ import {
   Settings,
   ArrowUpRight,
   LogOut,
-  Moon,
-  Sun,
   Shield,
   Radio,
   ExternalLink,
@@ -40,7 +38,6 @@ const ADMIN_NAV = [
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [timeString, setTimeString] = useState('');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
@@ -57,15 +54,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       setIsAuthorized(true);
     }
   }, [pathname, router]);
-
-  // Night studio dark mode toggle
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
 
   // Live time ticker
   useEffect(() => {
@@ -102,7 +90,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className={`min-h-screen flex ${isDarkMode ? 'dark bg-ink text-paper' : 'bg-bone/40 text-ink'}`}>
+    <div className="min-h-screen flex bg-bone/40 text-ink">
       {/* Sidebar Rail */}
       <aside className="w-64 border-r border-line bg-paper flex flex-col justify-between shrink-0 sticky top-0 h-screen z-30">
         <div>
@@ -187,18 +175,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               CASHFREE SANDBOX CONNECTED
             </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Night Studio Toggle */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 border border-line bg-bone hover:border-ink transition-colors text-ink"
-              title={isDarkMode ? 'Switch to Bone Canvas' : 'Switch to Night Studio'}
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <Sun className="w-4 h-4 text-acid" /> : <Moon className="w-4 h-4" />}
-            </button>
           </div>
         </header>
 
