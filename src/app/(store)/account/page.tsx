@@ -3,62 +3,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { User, Package, MapPin, Heart, Shield, LogOut, ArrowUpRight } from 'lucide-react';
+import { Package, MapPin, Heart, User, ArrowUpRight } from 'lucide-react';
 
 export default function AccountOverviewPage() {
-  const { user, role, signOut, isLoading } = useAuth();
+  const { user, role, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="max-w-page mx-auto px-4 md:px-10 py-16 text-center">
+      <div className="py-12 text-center">
         <p className="micro-label text-smoke">HYDRATING CLIENT IDENTIFIER...</p>
       </div>
     );
   }
 
-  const userEmail = user?.email || 'guest@kinetiq-labs.com';
-  const userName = (user?.user_metadata?.full_name as string) || userEmail.split('@')[0];
   const userRole = role || 'customer';
 
   return (
-    <div className="max-w-page mx-auto px-4 md:px-10 py-12 md:py-16 space-y-12">
-      {/* Overview Header */}
-      <div className="border-b border-line pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="acid">CLIENT DASHBOARD</Badge>
-            <Badge variant={userRole === 'admin' ? 'clay' : 'outline'}>
-              ROLE: {userRole.toUpperCase()}
-            </Badge>
-          </div>
-          <h1 className="font-display text-2xl md:text-3xl font-extrabold tracking-tight uppercase">
-            WELCOME, {userName}
-          </h1>
-          <p className="text-xs font-mono text-smoke mt-1">
-            IDENTIFIER: {userEmail} // STATUS: ACTIVE REGISTRY
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {userRole === 'admin' && (
-            <Link href="/admin">
-              <Button variant="clay" size="sm">
-                <Shield className="w-3.5 h-3.5 mr-1.5" />
-                ENTER ADMIN PANEL
-                <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-              </Button>
-            </Link>
-          )}
-
-          <Button variant="secondary" size="sm" onClick={() => signOut()}>
-            <LogOut className="w-3.5 h-3.5 mr-1.5" />
-            SIGN OUT
-          </Button>
-        </div>
-      </div>
-
+    <div className="space-y-8">
       {/* Account Navigation Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Tile 1: Orders */}
@@ -142,12 +103,12 @@ export default function AccountOverviewPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
           <div>
-            <span className="text-smoke block text-[10px]">RECORD ID (UUID)</span>
-            <span className="text-ink break-all">{user?.id || 'LOCAL-DEV-SESSION'}</span>
+            <span className="text-smoke block text-[10px]">RECORD ID</span>
+            <span className="text-ink break-all">{user?.id || 'CLIENT-VERIFIED-SESSION'}</span>
           </div>
           <div>
             <span className="text-smoke block text-[10px]">AUTH PROVIDER</span>
-            <span className="text-ink uppercase">{user?.app_metadata?.provider || 'GOOGLE / EMAIL'}</span>
+            <span className="text-ink uppercase">{user?.app_metadata?.provider || 'GOOGLE OAUTH 2.0'}</span>
           </div>
           <div>
             <span className="text-smoke block text-[10px]">ROLE PRIVILEGE</span>

@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +32,66 @@ const NAV_TABS = [
 
 export default function AccountLayout({ children }: AccountLayoutProps) {
   const pathname = usePathname();
-  const { user, role, signOut } = useAuth();
+  const router = useRouter();
+  const { user, role, signOut, isLoading } = useAuth();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [customerName, setCustomerName] = useState<string>('');
+  const [customerEmail, setCustomerEmail] = useState<string>('');
 
-  const userEmail = user?.email || 'customer@kinetiq.design';
-  const userName = (user?.user_metadata?.full_name as string) || userEmail.split('@')[0];
-  const userRole = role || 'customer';
+  // Strict Customer Protection: /account requires active login
+  useEffect(() => {
+    if (isLoading) return;
+
+    const cookies = typeof document !== 'undefined' ? document.cookie.split('; ') : [];
+    const hasCustomerCookie = cookies.some((row) => row.startsWith('kinetiq-customer-session='));
+    const hasAdminCookie = cookies.some((row) => row.startsWith('kinetiq-admin-session=operator'));
+
+    if (!user && !hasCustomerCookie && !hasAdminCookie) {
+      setIsAuthorized(false);
+      router.replace('/auth/login?redirect=' + encodeURIComponent(pathname) + '&tab=customer');
+    } else {
+      setIsAuthorized(true);
+
+      if (user) {
+        setCustomerEmail(user.email || '');
+        setCustomerName(
+          (user.user_metadata?.full_name as string) ||
+            (user.email ? user.email.split('@')[0] : 'Customer')
+        );
+      } else if (hasAdminCookie) {
+        setCustomerEmail('admin@kinetiq.run');
+        setCustomerName('Admin Operator');
+      } else {
+        const storedName = localStorage.getItem('kinetiq_user_name') || 'Google Verified Client';
+        const storedEmail = localStorage.getItem('kinetiq_user_email') || 'client@google.com';
+        setCustomerName(storedName);
+        setCustomerEmail(storedEmail);
+      }
+    }
+  }, [user, isLoading, pathname, router]);
+
+  const handleSignOut = async () => {
+    document.cookie = 'kinetiq-customer-session=; path=/; max-age=0';
+    document.cookie = 'kinetiq-admin-session=; path=/; max-age=0';
+    localStorage.removeItem('kinetiq_user_name');
+    localStorage.removeItem('kinetiq_user_email');
+    await signOut();
+    router.push('/auth/login?tab=customer');
+  };
+
+  if (isLoading || isAuthorized === false || isAuthorized === null) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 space-y-4 bg-bone">
+        <div className="w-8 h-8 border-2 border-line border-t-ink rounded-full animate-spin" />
+        <p className="micro-label text-smoke text-xs tracking-widest font-mono">
+          AUTHENTICATING CLIENT SESSION...
+        </p>
+      </div>
+    );
+  }
+
+  const userRole =
+    role || (typeof document !== 'undefined' && document.cookie.includes('kinetiq-admin-session=operator') ? 'admin' : 'customer');
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-8">
@@ -47,19 +102,23 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
             <span className="micro-label bg-bone px-2 py-0.5 border border-line">
               CLIENT REGISTRY
             </span>
-            <span className={`micro-label px-2 py-0.5 border ${
-              userRole === 'admin' ? 'border-clay text-paper bg-clay' : 'border-acid text-ink bg-acid/20'
-            }`}>
+            <span
+              className={`micro-label px-2 py-0.5 border ${
+                userRole === 'admin'
+                  ? 'border-clay text-paper bg-clay'
+                  : 'border-acid text-ink bg-acid/20'
+              }`}
+            >
               ROLE: {userRole.toUpperCase()}
             </span>
           </div>
 
           <h1 className="font-display text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-ink">
-            {userName}
+            {customerName}
           </h1>
 
           <p className="font-mono text-xs text-smoke mt-1">
-            ACCOUNT ID: {userEmail} · STATUS: VERIFIED
+            ACCOUNT ID: {customerEmail} · STATUS: VERIFIED
           </p>
         </div>
 
@@ -74,7 +133,7 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
             </Link>
           )}
 
-          <Button variant="secondary" size="sm" onClick={() => signOut()}>
+          <Button variant="secondary" size="sm" onClick={handleSignOut}>
             <LogOut className="w-3.5 h-3.5 mr-1.5" />
             SIGN OUT
           </Button>
@@ -103,8 +162,8 @@ export default function AccountLayout({ children }: AccountLayoutProps) {
         })}
       </nav>
 
-      {/* Tab Page Surface */}
-      <div>{children}</div>
+      {/* Page Tab Outlet */}
+      <main className="min-h-[400px]">{children}</main>
     </div>
   );
 }
