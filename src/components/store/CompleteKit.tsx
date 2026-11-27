@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Plus, Check } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useToast } from '@/providers/ToastProvider';
-import { generateProductSvg } from '@/lib/assets';
 
 interface KitItem {
   id: string;
@@ -25,21 +25,21 @@ export function CompleteKit() {
       name: 'MERINO ANTI-BLISTER SOCKS',
       subtitle: 'Targeted compression arch support',
       price: 1800,
-      image: generateProductSvg({ collection: 'pulse', name: 'MERINO SOCKS', colorway: 'Graphite', angle: 'top', aspectRatio: '1-1' }),
+      image: '/images/products/accessory-socks.jpg',
     },
     {
       id: 'acc-care',
       name: 'CARBON HYDROPHOBIC CARE KIT',
       subtitle: 'Water & stain barrier shield',
       price: 2400,
-      image: generateProductSvg({ collection: 'form', name: 'CARE KIT', colorway: 'Bone', angle: 'top', aspectRatio: '1-1' }),
+      image: '/images/products/accessory-care-kit.jpg',
     },
     {
       id: 'acc-laces',
       name: 'LOCKDOWN KEVLAR SPEED LACES',
       subtitle: 'Zero stretch aramid fibers',
       price: 950,
-      image: generateProductSvg({ collection: 'terra', name: 'SPEED LACES', colorway: 'Basalt', angle: 'top', aspectRatio: '1-1' }),
+      image: '/images/products/accessory-laces.jpg',
     },
   ];
 
@@ -84,9 +84,15 @@ export function CompleteKit() {
         {accessories.map((acc) => {
           const isAdded = addedIds.includes(acc.id);
           return (
-            <div key={acc.id} className="p-4 border border-line bg-paper flex items-center justify-between gap-4">
-              <div className="w-14 h-14 bg-bone border border-line overflow-hidden shrink-0">
-                <img src={acc.image} alt={acc.name} className="w-full h-full object-cover" />
+            <div key={acc.id} className="group p-4 border border-line bg-paper hover:border-ink/40 transition-colors flex items-center justify-between gap-4">
+              <div className="relative w-16 h-16 bg-[#F3F0E9] border border-line overflow-hidden shrink-0 flex items-center justify-center p-1">
+                <Image
+                  src={acc.image}
+                  alt={acc.name}
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain mix-blend-multiply transition-transform duration-300 group-hover:scale-105"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-display font-bold text-xs uppercase truncate text-ink">{acc.name}</p>
