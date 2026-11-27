@@ -30,14 +30,14 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
           <h3 className="font-display font-extrabold text-xl md:text-2xl text-ink uppercase tracking-tight">
             BUILT FOR // TECHNICAL SPECIFICATIONS
           </h3>
-          <span className="micro-label text-smoke text-[10px]">TOLERANCES: ±0.5MM</span>
+          <span className="micro-label text-ink/70 text-xs font-semibold">TOLERANCES: ±0.5MM</span>
         </div>
 
         <div className="border border-line divide-y divide-line bg-paper font-mono text-xs">
           {specs.map((item, idx) => (
             <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-bone/40 transition-colors">
-              <span className="text-smoke micro-label text-[10px] w-56 shrink-0">{item.label}</span>
-              <span className="text-ink font-bold uppercase mt-1 sm:mt-0">{item.val}</span>
+              <span className="text-ink font-mono font-semibold text-xs tracking-wider w-64 shrink-0 uppercase">{item.label}</span>
+              <span className="text-ink font-bold uppercase mt-1 sm:mt-0 sm:text-right">{item.val}</span>
             </div>
           ))}
         </div>
@@ -48,27 +48,27 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
         <div className="flex items-center justify-between border-b border-bone/20 pb-3">
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-acid" />
-            <span className="micro-label text-acid">K-LATTICE ARCHITECTURE</span>
+            <span className="micro-label text-acid font-bold">K-LATTICE ARCHITECTURE</span>
           </div>
-          <span className="micro-label text-smoke text-[9px]">PATENTED COMPUTATIONAL DAMPING</span>
+          <span className="micro-label text-bone/70 text-[10px]">PATENTED COMPUTATIONAL DAMPING</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs font-mono">
           <div className="space-y-2 border-l border-bone/20 pl-4">
             <p className="text-acid font-bold">01 // IMPACT DISPERSION</p>
-            <p className="text-smoke leading-relaxed">
+            <p className="text-bone/80 leading-relaxed">
               3D printed Voronoi cell geometry compresses non-linearly, deflecting vertical shock vectors away from knee joints.
             </p>
           </div>
           <div className="space-y-2 border-l border-bone/20 pl-4">
             <p className="text-acid font-bold">02 // FORWARD PROPULSION</p>
-            <p className="text-smoke leading-relaxed">
+            <p className="text-bone/80 leading-relaxed">
               Longitudinal hollow struts rebound in under 12 milliseconds, yielding 88.4% mechanical energy return at push-off.
             </p>
           </div>
           <div className="space-y-2 border-l border-bone/20 pl-4">
             <p className="text-acid font-bold">03 // THERMAL VENTILATION</p>
-            <p className="text-smoke leading-relaxed">
+            <p className="text-bone/80 leading-relaxed">
               Continuous hollow channels force internal airflow through the sole matrix with every foot strike.
             </p>
           </div>
@@ -78,7 +78,7 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
       {/* 3. Shipping & Returns Accordion */}
       <section className="space-y-3">
         <div className="border-b border-line pb-2">
-          <span className="micro-label text-smoke">LOGISTICS & CARE PROTOCOL</span>
+          <span className="micro-label text-ink/80 font-semibold text-xs">LOGISTICS & CARE PROTOCOL</span>
         </div>
 
         {/* Accordion 1: Shipping */}
@@ -86,20 +86,20 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
           <button
             type="button"
             onClick={() => toggleAccordion('shipping')}
-            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors"
+            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors text-ink"
           >
             <div className="flex items-center gap-2.5">
-              <Truck className="w-4 h-4 text-smoke" />
+              <Truck className="w-4 h-4 text-ink/70" />
               <span>COMPLIMENTARY DOMESTIC DISPATCH & TIMELINES</span>
             </div>
             {openAccordion === 'shipping' ? (
-              <ChevronUp className="w-4 h-4 text-smoke" />
+              <ChevronUp className="w-4 h-4 text-ink/70" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-smoke" />
+              <ChevronDown className="w-4 h-4 text-ink/70" />
             )}
           </button>
           {openAccordion === 'shipping' && (
-            <div className="px-4 pb-4 text-xs font-mono text-smoke leading-relaxed border-t border-line-soft pt-3 space-y-2">
+            <div className="px-4 pb-4 text-xs font-mono text-ink/85 leading-relaxed border-t border-line-soft pt-3 space-y-2">
               <p>• All orders are dispatched via insured BlueDart Air express directly from our Mumbai laboratory.</p>
               <p>• Metro locations: 24 to 48 hours delivery SLA. Rest of India: 2 to 4 business days.</p>
               <p>• Real-time AWB tracking URL and SMS telemetry are issued immediately upon package seal.</p>
@@ -112,20 +112,20 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
           <button
             type="button"
             onClick={() => toggleAccordion('returns')}
-            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors"
+            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors text-ink"
           >
             <div className="flex items-center gap-2.5">
-              <RefreshCw className="w-4 h-4 text-smoke" />
+              <RefreshCw className="w-4 h-4 text-ink/70" />
               <span>30-DAY ANATOMICAL EXCHANGE & COMPLIMENTARY REVERSE PICKUP</span>
             </div>
             {openAccordion === 'returns' ? (
-              <ChevronUp className="w-4 h-4 text-smoke" />
+              <ChevronUp className="w-4 h-4 text-ink/70" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-smoke" />
+              <ChevronDown className="w-4 h-4 text-ink/70" />
             )}
           </button>
           {openAccordion === 'returns' && (
-            <div className="px-4 pb-4 text-xs font-mono text-smoke leading-relaxed border-t border-line-soft pt-3 space-y-2">
+            <div className="px-4 pb-4 text-xs font-mono text-ink/85 leading-relaxed border-t border-line-soft pt-3 space-y-2">
               <p>• Test your fit indoors on clean surfaces. If the sizing does not align, initiate an exchange from your dashboard.</p>
               <p>• Our courier arranges doorstep reverse pickup at zero expense to you.</p>
               <p>• Full refunds are processed to your original payment method within 3 business days of return inspection.</p>
@@ -138,20 +138,20 @@ export function ProductSpecs({ product }: { product: ProductItem }) {
           <button
             type="button"
             onClick={() => toggleAccordion('materials')}
-            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors"
+            className="w-full p-4 flex items-center justify-between text-left text-xs font-mono uppercase font-bold hover:bg-bone/40 transition-colors text-ink"
           >
             <div className="flex items-center gap-2.5">
-              <ShieldCheck className="w-4 h-4 text-smoke" />
+              <ShieldCheck className="w-4 h-4 text-ink/70" />
               <span>MATERIAL RECOVERY & 1-YEAR CHASSIS WARRANTY</span>
             </div>
             {openAccordion === 'materials' ? (
-              <ChevronUp className="w-4 h-4 text-smoke" />
+              <ChevronUp className="w-4 h-4 text-ink/70" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-smoke" />
+              <ChevronDown className="w-4 h-4 text-ink/70" />
             )}
           </button>
           {openAccordion === 'materials' && (
-            <div className="px-4 pb-4 text-xs font-mono text-smoke leading-relaxed border-t border-line-soft pt-3 space-y-2">
+            <div className="px-4 pb-4 text-xs font-mono text-ink/85 leading-relaxed border-t border-line-soft pt-3 space-y-2">
               <p>• Covered by the KINETIQ 1-Year Chassis Guarantee covering midsole bond failure and carbon plate delamination.</p>
               <p>• Crafted without animal glues or unrecoverable resins. Return worn-out shoes for a ₹2,000 recycling credit.</p>
             </div>

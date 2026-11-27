@@ -84,50 +84,50 @@ export function ProductReviews({ product }: { product: ProductItem }) {
         {/* Rating Distribution Bars */}
         <div className="md:col-span-4 space-y-2 font-mono text-xs my-auto">
           <div className="flex items-center gap-3">
-            <span className="w-6 text-smoke">5★</span>
+            <span className="w-6 text-ink/80 font-semibold">5★</span>
             <div className="flex-1 h-2 bg-bone border border-line overflow-hidden">
               <div className="h-full bg-ink w-[88%]" />
             </div>
-            <span className="w-8 text-right text-smoke">88%</span>
+            <span className="w-8 text-right text-ink font-bold">88%</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-6 text-smoke">4★</span>
+            <span className="w-6 text-ink/80 font-semibold">4★</span>
             <div className="flex-1 h-2 bg-bone border border-line overflow-hidden">
               <div className="h-full bg-ink w-[10%]" />
             </div>
-            <span className="w-8 text-right text-smoke">10%</span>
+            <span className="w-8 text-right text-ink font-bold">10%</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-6 text-smoke">3★</span>
+            <span className="w-6 text-ink/80 font-semibold">3★</span>
             <div className="flex-1 h-2 bg-bone border border-line overflow-hidden">
               <div className="h-full bg-ink w-[2%]" />
             </div>
-            <span className="w-8 text-right text-smoke">2%</span>
+            <span className="w-8 text-right text-ink font-bold">2%</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-6 text-smoke">2★</span>
+            <span className="w-6 text-ink/80 font-semibold">2★</span>
             <div className="flex-1 h-2 bg-bone border border-line overflow-hidden">
               <div className="h-full bg-ink w-[0%]" />
             </div>
-            <span className="w-8 text-right text-smoke">0%</span>
+            <span className="w-8 text-right text-ink font-bold">0%</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="w-6 text-smoke">1★</span>
+            <span className="w-6 text-ink/80 font-semibold">1★</span>
             <div className="flex-1 h-2 bg-bone border border-line overflow-hidden">
               <div className="h-full bg-ink w-[0%]" />
             </div>
-            <span className="w-8 text-right text-smoke">0%</span>
+            <span className="w-8 text-right text-ink font-bold">0%</span>
           </div>
         </div>
 
         {/* Fit Feedback Summary Gauge */}
         <div className="md:col-span-4 flex flex-col justify-center space-y-3 border-t md:border-t-0 md:border-l border-line pt-6 md:pt-0 md:pl-8">
-          <span className="micro-label text-smoke">ANATOMICAL FIT SUMMARY</span>
+          <span className="micro-label text-ink/80 font-semibold">ANATOMICAL FIT SUMMARY</span>
           <div className="space-y-1">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-smoke">RUNS SMALL (14%)</span>
+              <span className="text-ink/80 font-medium">RUNS SMALL (14%)</span>
               <span className="font-bold text-ink">TRUE TO SIZE (82%)</span>
-              <span className="text-smoke">RUNS LARGE (4%)</span>
+              <span className="text-ink/80 font-medium">RUNS LARGE (4%)</span>
             </div>
             <div className="h-3 w-full bg-bone border border-line flex overflow-hidden">
               <div className="h-full bg-smoke/40 w-[14%]" title="Runs small" />
@@ -135,7 +135,7 @@ export function ProductReviews({ product }: { product: ProductItem }) {
               <div className="h-full bg-smoke/40 w-[4%]" title="Runs large" />
             </div>
           </div>
-          <p className="micro-label text-smoke text-[9px]">
+          <p className="micro-label text-ink/80 text-[10px] font-mono">
             RECOMMENDATION: SELECT YOUR REGULAR RUNNING SHOE SIZE.
           </p>
         </div>
@@ -155,7 +155,7 @@ export function ProductReviews({ product }: { product: ProductItem }) {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-3 text-smoke font-mono text-[10px]">
+              <div className="flex items-center gap-3 text-ink/70 font-mono text-xs">
                 <span>FIT: {rev.fit.replace('_', ' ').toUpperCase()}</span>
                 <span>//</span>
                 <span>{rev.date}</span>
@@ -169,7 +169,7 @@ export function ProductReviews({ product }: { product: ProductItem }) {
             </div>
 
             <h4 className="font-display font-bold text-base text-ink">{rev.title}</h4>
-            <p className="text-xs font-mono text-smoke leading-relaxed">{rev.body}</p>
+            <p className="text-xs font-mono text-ink/85 leading-relaxed">{rev.body}</p>
           </div>
         ))}
       </div>
