@@ -172,9 +172,81 @@ export function AdminProductsClient() {
     setIsAutoSpinning(false);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const extractFramesFromVideo = (videoFile: File, frameCount = 24): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'auto';
+      video.muted = true;
+      video.playsInline = true;
+      const url = URL.createObjectURL(videoFile);
+      video.src = url;
+
+      video.onloadedmetadata = async () => {
+        const duration = video.duration;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 800;
+        canvas.height = video.videoHeight || 800;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          return reject('No canvas context');
+        }
+
+        const frames: string[] = [];
+        const interval = duration / frameCount;
+
+        for (let i = 0; i < frameCount; i++) {
+          const time = i * interval;
+          await new Promise<void>((res) => {
+            video.currentTime = time;
+            video.onseeked = () => {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              frames.push(canvas.toDataURL('image/jpeg', 0.85));
+              res();
+            };
+          });
+        }
+
+        URL.revokeObjectURL(url);
+        resolve(frames);
+      };
+
+      video.onerror = (e) => {
+        URL.revokeObjectURL(url);
+        reject(e);
+      };
+    });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    // Check if user uploaded a video clip (e.g. from Google Flow, phone 360 loop, or gimbal)
+    if (files.length === 1 && files[0].type.startsWith('video/')) {
+      toast({
+        title: 'EXTRACTING 360° TURNTABLE FRAMES',
+        description: 'Analyzing video and extracting 24 equidistant angles (No tripod needed)...',
+        type: 'default',
+      });
+      try {
+        const extracted = await extractFramesFromVideo(files[0], 24);
+        setUploaded360Frames(extracted);
+        setActive360FrameIndex(0);
+        toast({
+          title: '24 FRAMES AUTO-EXTRACTED',
+          description: 'Video converted into interactive 360° turntable. Ready to publish!',
+          type: 'success',
+        });
+      } catch (err) {
+        toast({
+          title: 'EXTRACTION FAILED',
+          description: 'Could not parse video frames. Please try standard JPGs.',
+          type: 'warn',
+        });
+      }
+      return;
+    }
 
     const fileArray = Array.from(files).sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true })
@@ -594,13 +666,15 @@ export function AdminProductsClient() {
             <div className="p-4 bg-bone/70 border border-line text-xs font-mono space-y-2">
               <div className="flex items-center gap-2 text-ink font-bold">
                 <Camera className="w-4 h-4 text-clay" />
-                <span>NON-TECHNICAL CLIENT GUIDE: HOW TO PREPARE 360° PHOTOS</span>
+                <span>NON-TECHNICAL CLIENT GUIDE: 2 WAYS TO UPLOAD 360° CONTENT (NO CODING)</span>
               </div>
-              <ul className="text-smoke space-y-1 pl-6 list-disc leading-relaxed text-[11px]">
-                <li><strong className="text-ink">Step 1:</strong> Shoe ko rotating turntable (rotary plate) par center me rakhein aur camera ko tripod par fix rakhein.</li>
-                <li><strong className="text-ink">Step 2:</strong> Har 15 degree rotate karke 1 photo lein (Total 24 photos for smooth 360° spin).</li>
-                <li><strong className="text-ink">Step 3:</strong> Photos ko sequence me name karein (e.g. <code className="bg-paper px-1 border border-line text-ink">frame_01.jpg</code> to <code className="bg-paper px-1 border border-line text-ink">frame_24.jpg</code>).</li>
-                <li><strong className="text-ink">Step 4:</strong> Niche diye gaye upload box me saari photos ek saath select / drag &amp; drop karein. Zero coding required!</li>
+              <ul className="text-smoke space-y-1.5 pl-6 list-disc leading-relaxed text-[11px]">
+                <li>
+                  <strong className="text-ink">Method 1 (Google Flow / Phone Video — No Tripod Needed):</strong> Shoe ke chaaron taraf phone ya Google Flow se ek continuous 5-10 second ka smooth circular 360° video record karein aur seedha video file (<code className="bg-paper px-1 border border-line text-ink">.mp4 / .mov</code>) upload karein. Hamara system automatically usme se 24 perfect frames extract kar lega!
+                </li>
+                <li>
+                  <strong className="text-ink">Method 2 (24 Photos with Turntable):</strong> Agar rotating plate hai, toh har 15° ghumakar 24 photos lein aur saari photos ek saath select karke yahan drop karein.
+                </li>
               </ul>
             </div>
 
@@ -667,19 +741,19 @@ export function AdminProductsClient() {
               {/* Right Column: Upload Box & Frame Filmstrip */}
               <div className="space-y-4 flex flex-col justify-between">
                 <div>
-                  <span className="micro-label text-smoke font-mono block mb-2">BULK FRAMES UPLOADER</span>
+                  <span className="micro-label text-smoke font-mono block mb-2">BULK FRAMES OR 360 VIDEO UPLOADER</span>
                   <label className="border-2 border-dashed border-line hover:border-ink p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-bone/30 hover:bg-bone/70 block">
                     <Upload className="w-8 h-8 text-clay mb-2 animate-bounce" />
                     <p className="font-mono text-xs font-bold text-ink uppercase">
-                      CLICK OR DRAG &amp; DROP 24-36 PHOTOS
+                      SELECT 24-36 PHOTOS OR 1 VIDEO CLIP (.MP4 / .MOV)
                     </p>
                     <p className="font-mono text-[10px] text-smoke mt-1">
-                      Supports JPG, PNG, WEBP (Select all frames at once)
+                      Upload Google Flow / Phone video for auto-extraction, or select 24 JPG frames
                     </p>
                     <input
                       type="file"
                       multiple
-                      accept="image/*"
+                      accept="image/*,video/*"
                       onChange={handleFileUpload}
                       className="hidden"
                     />
