@@ -14,6 +14,11 @@ import {
   X,
   AlertCircle,
   Eye,
+  RotateCw,
+  Camera,
+  Play,
+  Pause,
+  Sliders,
 } from 'lucide-react';
 import { ALL_PRODUCTS, type ProductItem } from '@/lib/products';
 import { Button } from '@/components/ui/button';
@@ -26,6 +31,10 @@ export function AdminProductsClient() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [managingStockProduct, setManagingStockProduct] = useState<ProductItem | null>(null);
+  const [managing360Product, setManaging360Product] = useState<ProductItem | null>(null);
+  const [uploaded360Frames, setUploaded360Frames] = useState<string[]>([]);
+  const [active360FrameIndex, setActive360FrameIndex] = useState(0);
+  const [isAutoSpinning, setIsAutoSpinning] = useState(false);
   const { toast } = useToast();
 
   // Form State for Add/Edit
@@ -147,6 +156,82 @@ export function AdminProductsClient() {
     toast({ title: 'PRODUCT DELETED', description: `${name} removed from active catalog.`, type: 'default' });
   };
 
+  // 360 Spin Auto-Play Loop
+  React.useEffect(() => {
+    if (!isAutoSpinning || uploaded360Frames.length === 0) return;
+    const interval = setInterval(() => {
+      setActive360FrameIndex((prev) => (prev + 1) % uploaded360Frames.length);
+    }, 120);
+    return () => clearInterval(interval);
+  }, [isAutoSpinning, uploaded360Frames.length]);
+
+  const handleOpen360Manager = (p: ProductItem) => {
+    setManaging360Product(p);
+    setUploaded360Frames(p.spinFrames && p.spinFrames.length > 0 ? p.spinFrames : []);
+    setActive360FrameIndex(0);
+    setIsAutoSpinning(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files).sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true })
+    );
+
+    const loadedFrames: string[] = [];
+    let processed = 0;
+
+    fileArray.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          loadedFrames.push(event.target.result as string);
+        }
+        processed++;
+        if (processed === fileArray.length) {
+          setUploaded360Frames(loadedFrames);
+          setActive360FrameIndex(0);
+          toast({
+            title: '360° FRAMES LOADED',
+            description: `${loadedFrames.length} sequential frames ready for turntable preview.`,
+            type: 'success',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSave360Frames = () => {
+    if (!managing360Product) return;
+    if (uploaded360Frames.length === 0) {
+      toast({
+        title: 'NO FRAMES LOADED',
+        description: 'Please select sequential turntable photos.',
+        type: 'warn',
+      });
+      return;
+    }
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === managing360Product.id
+          ? { ...p, spinFrames: uploaded360Frames }
+          : p
+      )
+    );
+
+    toast({
+      title: '360° SPIN PUBLISHED',
+      description: `${managing360Product.name} updated with ${uploaded360Frames.length} turntable frames.`,
+      type: 'success',
+    });
+    setManaging360Product(null);
+    setIsAutoSpinning(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -262,7 +347,15 @@ export function AdminProductsClient() {
                 </td>
 
                 {/* Actions */}
-                <td className="p-3 pr-4 text-right space-x-2">
+                <td className="p-3 pr-4 text-right space-x-2 whitespace-nowrap">
+                  <button
+                    onClick={() => handleOpen360Manager(prod)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-line hover:border-ink bg-bone/40 hover:bg-bone text-ink text-[11px] font-mono font-semibold transition-colors"
+                    title="Manage 360° Interactive Turntable Frames"
+                  >
+                    <RotateCw className="w-3.5 h-3.5 text-clay" />
+                    <span>360° SPINS</span>
+                  </button>
                   <button
                     onClick={() => handleOpenEdit(prod)}
                     className="p-1.5 border border-line hover:border-ink text-smoke hover:text-ink transition-colors"
@@ -465,6 +558,196 @@ export function AdminProductsClient() {
             >
               SAVE INVENTORY ALLOCATIONS
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* 360° Interactive Frames Manager Modal (Non-Technical Client Interface) */}
+      {managing360Product && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-paper border border-line w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-line pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="micro-label bg-clay text-paper px-1.5 py-0.5 text-[9px] font-bold">
+                    CLIENT NO-CODE WORKFLOW
+                  </span>
+                  <span className="micro-label text-smoke">360° INTERACTIVE TURNTABLE</span>
+                </div>
+                <h3 className="font-display font-bold text-xl uppercase tracking-tight mt-1 text-ink">
+                  {managing360Product.name} // 360° FRAMES
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setManaging360Product(null);
+                  setIsAutoSpinning(false);
+                }}
+                className="p-1.5 text-smoke hover:text-ink transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick Non-Technical Instructions Card */}
+            <div className="p-4 bg-bone/70 border border-line text-xs font-mono space-y-2">
+              <div className="flex items-center gap-2 text-ink font-bold">
+                <Camera className="w-4 h-4 text-clay" />
+                <span>NON-TECHNICAL CLIENT GUIDE: HOW TO PREPARE 360° PHOTOS</span>
+              </div>
+              <ul className="text-smoke space-y-1 pl-6 list-disc leading-relaxed text-[11px]">
+                <li><strong className="text-ink">Step 1:</strong> Shoe ko rotating turntable (rotary plate) par center me rakhein aur camera ko tripod par fix rakhein.</li>
+                <li><strong className="text-ink">Step 2:</strong> Har 15 degree rotate karke 1 photo lein (Total 24 photos for smooth 360° spin).</li>
+                <li><strong className="text-ink">Step 3:</strong> Photos ko sequence me name karein (e.g. <code className="bg-paper px-1 border border-line text-ink">frame_01.jpg</code> to <code className="bg-paper px-1 border border-line text-ink">frame_24.jpg</code>).</li>
+                <li><strong className="text-ink">Step 4:</strong> Niche diye gaye upload box me saari photos ek saath select / drag &amp; drop karein. Zero coding required!</li>
+              </ul>
+            </div>
+
+            {/* Live Turntable Simulator & Uploader */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column: Live 360 Turntable Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="micro-label text-smoke font-mono">LIVE TURNTABLE PREVIEW</span>
+                  <span className="font-mono text-xs font-bold text-ink bg-bone px-2 py-0.5 border border-line">
+                    {uploaded360Frames.length > 0
+                      ? `${Math.round((active360FrameIndex / (uploaded360Frames.length || 1)) * 360)}° (FRAME ${active360FrameIndex + 1}/${uploaded360Frames.length})`
+                      : '000° (DEFAULT)'}
+                  </span>
+                </div>
+
+                <div className="relative aspect-square w-full bg-[#F3F0E9] border border-line flex items-center justify-center overflow-hidden p-4 group">
+                  <img
+                    src={
+                      uploaded360Frames.length > 0
+                        ? uploaded360Frames[active360FrameIndex]
+                        : managing360Product.primaryImage
+                    }
+                    alt="360 Frame Preview"
+                    className="w-full h-full object-contain mix-blend-multiply select-none"
+                  />
+                  <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center bg-paper/90 backdrop-blur border border-line px-3 py-1.5 text-[10px] font-mono">
+                    <span className="text-smoke">SCRUB OR PLAY PREVIEW</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsAutoSpinning(!isAutoSpinning)}
+                      className="inline-flex items-center gap-1 font-bold text-ink hover:text-clay transition-colors"
+                      disabled={uploaded360Frames.length === 0}
+                    >
+                      {isAutoSpinning ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+                      <span>{isAutoSpinning ? 'PAUSE' : 'AUTO SPIN'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scrubber slider */}
+                {uploaded360Frames.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[10px] font-mono text-smoke">
+                      <span>0° (FRONT)</span>
+                      <span>180° (REAR)</span>
+                      <span>360° (FULL)</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={uploaded360Frames.length - 1}
+                      value={active360FrameIndex}
+                      onChange={(e) => {
+                        setIsAutoSpinning(false);
+                        setActive360FrameIndex(Number(e.target.value));
+                      }}
+                      className="w-full accent-ink cursor-pointer"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Upload Box & Frame Filmstrip */}
+              <div className="space-y-4 flex flex-col justify-between">
+                <div>
+                  <span className="micro-label text-smoke font-mono block mb-2">BULK FRAMES UPLOADER</span>
+                  <label className="border-2 border-dashed border-line hover:border-ink p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-bone/30 hover:bg-bone/70 block">
+                    <Upload className="w-8 h-8 text-clay mb-2 animate-bounce" />
+                    <p className="font-mono text-xs font-bold text-ink uppercase">
+                      CLICK OR DRAG &amp; DROP 24-36 PHOTOS
+                    </p>
+                    <p className="font-mono text-[10px] text-smoke mt-1">
+                      Supports JPG, PNG, WEBP (Select all frames at once)
+                    </p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* Upload Status / Filmstrip Preview */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-smoke font-medium">LOADED SEQUENCE:</span>
+                    <span className="font-bold text-ink">{uploaded360Frames.length} FRAMES</span>
+                  </div>
+
+                  {uploaded360Frames.length > 0 ? (
+                    <div className="flex gap-1.5 overflow-x-auto pb-2 border border-line bg-bone p-2">
+                      {uploaded360Frames.map((frame, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setIsAutoSpinning(false);
+                            setActive360FrameIndex(idx);
+                          }}
+                          className={`relative shrink-0 w-12 h-12 border overflow-hidden p-0.5 transition-all ${
+                            active360FrameIndex === idx
+                              ? 'border-clay ring-2 ring-clay/40 bg-paper'
+                              : 'border-line bg-paper/60 hover:border-ink'
+                          }`}
+                        >
+                          <img src={frame} alt={`Frame ${idx + 1}`} className="w-full h-full object-contain mix-blend-multiply" />
+                          <span className="absolute bottom-0 right-0 bg-ink text-paper text-[8px] font-mono px-0.5 leading-none">
+                            {idx + 1}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 border border-line bg-bone text-center font-mono text-xs text-smoke">
+                      No custom 360° frames uploaded yet. Currently using standard studio multi-angle fallbacks.
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-2 flex gap-3">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={handleSave360Frames}
+                    disabled={uploaded360Frames.length === 0}
+                    className="flex-1 h-11 text-xs font-bold"
+                  >
+                    SAVE &amp; PUBLISH 360° SPINS
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setManaging360Product(null);
+                      setIsAutoSpinning(false);
+                    }}
+                    className="h-11 text-xs"
+                  >
+                    CANCEL
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -23,6 +23,7 @@ export interface ProductItem {
   ratingCount: number;
   primaryImage: string;
   hoverImage: string;
+  spinFrames?: string[];
   sizes: number[];
   colors: ProductColor[];
   isFeatured: boolean;

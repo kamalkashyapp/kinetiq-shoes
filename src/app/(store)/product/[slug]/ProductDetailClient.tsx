@@ -79,33 +79,35 @@ export function ProductDetailClient({
     { url: renders[4], alt: `${product.name} Material Construction Detail`, label: 'CONSTRUCTION' },
   ];
 
-  // 24 frames for 360 spin viewer cycling through authentic real views
-  const spinFrames = [
-    renders[0],
-    renders[1],
-    renders[2],
-    renders[3],
-    renders[4],
-    renders[0],
-    renders[1],
-    renders[2],
-    renders[3],
-    renders[4],
-    renders[0],
-    renders[1],
-    renders[2],
-    renders[3],
-    renders[4],
-    renders[0],
-    renders[1],
-    renders[2],
-    renders[3],
-    renders[4],
-    renders[0],
-    renders[1],
-    renders[2],
-    renders[3],
-  ];
+  // 24 frames for 360 spin viewer cycling through authentic real views or custom uploaded frames
+  const spinFrames = product.spinFrames && product.spinFrames.length > 0
+    ? product.spinFrames
+    : [
+        renders[0],
+        renders[1],
+        renders[2],
+        renders[3],
+        renders[4],
+        renders[0],
+        renders[1],
+        renders[2],
+        renders[3],
+        renders[4],
+        renders[0],
+        renders[1],
+        renders[2],
+        renders[3],
+        renders[4],
+        renders[0],
+        renders[1],
+        renders[2],
+        renders[3],
+        renders[4],
+        renders[0],
+        renders[1],
+        renders[2],
+        renders[3],
+      ];
 
   // IntersectionObserver on main CTA to toggle StickyBuyBar
   useEffect(() => {
